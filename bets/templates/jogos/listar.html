@@ -1,0 +1,248 @@
+{% extends 'base.html' %}
+
+{% block title %}Jogos - PalpitaIFPI{% endblock %}
+
+{% block extra_css %}
+<style>
+    .games-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #00ff00;
+    }
+    .games-header h2 {
+        color: #00ff00;
+        margin: 0;
+        font-size: 18px;
+        text-transform: uppercase;
+    }
+    .modalidade-tabs {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+    }
+    .modalidade-tab {
+        padding: 8px 15px;
+        background: #161b22;
+        border: 1px solid #00ff00;
+        color: #ffffff;
+        text-decoration: none;
+        border-radius: 3px;
+        font-size: 14px;
+        transition: all 0.2s;
+    }
+    .modalidade-tab:hover {
+        background: rgba(0,255,0,0.2);
+        color: #00ff00;
+    }
+    .modalidade-tab.active {
+        background: #00ff00;
+        color: #000000;
+        font-weight: bold;
+    }
+    .games-table {
+        width: 100%;
+        background: #161b22;
+        border: 1px solid #00ff00;
+        border-radius: 3px;
+        overflow: hidden;
+    }
+    .games-table thead {
+        background: #000000;
+    }
+    .games-table th {
+        padding: 12px;
+        text-align: center;
+        color: #00ff00;
+        font-size: 12px;
+        font-weight: bold;
+        text-transform: uppercase;
+        border-right: 1px solid #00ff00;
+    }
+    .games-table th:last-child {
+        border-right: none;
+    }
+    .games-table td {
+        padding: 15px 12px;
+        text-align: center;
+        border-bottom: 1px solid rgba(0,255,0,0.2);
+        border-right: 1px solid rgba(0,255,0,0.1);
+    }
+    .games-table td:last-child {
+        border-right: none;
+    }
+    .games-table tr:hover {
+        background: rgba(0,255,0,0.05);
+    }
+    .game-info {
+        text-align: left;
+    }
+    .game-teams {
+        font-weight: bold;
+        color: #ffffff;
+        margin-bottom: 5px;
+    }
+    .game-meta {
+        font-size: 11px;
+        color: #888;
+    }
+    .odd-button {
+        display: inline-block;
+        padding: 10px 15px;
+        background: #161b22;
+        border: 1px solid #00ff00;
+        color: #00ff00;
+        text-decoration: none;
+        border-radius: 3px;
+        font-weight: bold;
+        font-size: 14px;
+        min-width: 60px;
+        transition: all 0.2s;
+        cursor: pointer;
+    }
+    .odd-button:hover {
+        background: #00ff00;
+        color: #000000;
+        transform: scale(1.05);
+    }
+    .bet-button {
+        padding: 8px 20px;
+        background: #00ff00;
+        color: #000000;
+        border: none;
+        border-radius: 3px;
+        font-weight: bold;
+        text-decoration: none;
+        font-size: 14px;
+        transition: all 0.2s;
+        display: inline-block;
+    }
+    .bet-button:hover {
+        background: #00cc00;
+        transform: scale(1.05);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="games-header">
+    <h2>⚽ Jogos Disponíveis</h2>
+</div>
+
+<div class="modalidade-tabs">
+    <a href="{% url 'listar_jogos' %}" class="modalidade-tab {% if not modalidade_selecionada %}active{% endif %}">
+        Todas
+    </a>
+    {% for modalidade in modalidades %}
+        <a href="{% url 'jogos_por_modalidade' modalidade.id %}" 
+           class="modalidade-tab {% if modalidade_selecionada and modalidade_selecionada.id == modalidade.id %}active{% endif %}">
+            {{ modalidade.nome }}
+        </a>
+    {% endfor %}
+</div>
+
+{% if jogos_futuros %}
+    <table class="games-table">
+        <thead>
+            <tr>
+                <th style="width: 30%;">Jogo</th>
+                <th style="width: 15%;">1</th>
+                <th style="width: 15%;">X</th>
+                <th style="width: 15%;">2</th>
+                <th style="width: 15%;">Data/Hora</th>
+                <th style="width: 10%;">Ação</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for jogo in jogos_futuros %}
+                <tr>
+                    <td class="game-info">
+                        <div class="game-teams">{{ jogo.time1 }} x {{ jogo.time2 }}</div>
+                        <div class="game-meta">{{ jogo.modalidade.nome }} | {{ jogo.data|date:"d/m H:i" }}</div>
+                    </td>
+                    <td>
+                        {% if user.is_authenticated %}
+                            <a href="{% url 'apostar' jogo.id %}?tipo=1X2&opcao=1" class="odd-button">
+                                {{ jogo.odd_time1 }}
+                            </a>
+                        {% else %}
+                            <span class="odd-button" style="opacity: 0.5;">{{ jogo.odd_time1 }}</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if user.is_authenticated %}
+                            <a href="{% url 'apostar' jogo.id %}?tipo=1X2&opcao=X" class="odd-button">
+                                {{ jogo.odd_empate }}
+                            </a>
+                        {% else %}
+                            <span class="odd-button" style="opacity: 0.5;">{{ jogo.odd_empate }}</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if user.is_authenticated %}
+                            <a href="{% url 'apostar' jogo.id %}?tipo=1X2&opcao=2" class="odd-button">
+                                {{ jogo.odd_time2 }}
+                            </a>
+                        {% else %}
+                            <span class="odd-button" style="opacity: 0.5;">{{ jogo.odd_time2 }}</span>
+                        {% endif %}
+                    </td>
+                    <td style="font-size: 12px; color: #888;">{{ jogo.data|date:"d/m H:i" }}</td>
+                    <td>
+                        {% if user.is_authenticated %}
+                            <a href="{% url 'apostar' jogo.id %}" class="bet-button">Apostar</a>
+                        {% else %}
+                            <a href="{% url 'admin:login' %}" class="bet-button" style="background: #666;">Login</a>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <div style="text-align: center; padding: 40px; color: #888;">
+        <p>Nenhum jogo futuro cadastrado.</p>
+    </div>
+{% endif %}
+
+<h3 style="margin-top: 40px;">📊 Jogos Passados</h3>
+{% if jogos_passados %}
+    <table>
+        <thead>
+            <tr>
+                <th>Modalidade</th>
+                <th>Jogo</th>
+                <th>Placar Final</th>
+                <th>Data</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for jogo in jogos_passados %}
+                <tr>
+                    <td>{{ jogo.modalidade.nome }}</td>
+                    <td><strong>{{ jogo.time1 }} x {{ jogo.time2 }}</strong></td>
+                    <td>
+                        {% if jogo.placar_time1 is not None and jogo.placar_time2 is not None %}
+                            <strong>{{ jogo.placar_time1 }} x {{ jogo.placar_time2 }}</strong>
+                        {% else %}
+                            <em>Aguardando resultado</em>
+                        {% endif %}
+                    </td>
+                    <td>{{ jogo.data|date:"d/m/Y H:i" }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <p style="color: #666; font-style: italic; margin-top: 10px;">
+        Nenhum jogo passado cadastrado.
+    </p>
+{% endif %}
+
+<div style="margin-top: 30px;">
+    <a href="{% url 'home' %}" class="btn btn-secondary">Voltar para Home</a>
+</div>
+{% endblock %}

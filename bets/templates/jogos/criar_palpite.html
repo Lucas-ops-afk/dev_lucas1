@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+
+{% block title %}Criar Palpite - PalpitaIFPI{% endblock %}
+
+{% block content %}
+<h2>🎯 Criar Palpite</h2>
+
+<div style="background: #f8f9fa; padding: 20px; border-radius: 5px; margin-top: 20px;">
+    <h3>{{ jogo.time1 }} x {{ jogo.time2 }}</h3>
+    <p><strong>Modalidade:</strong> {{ jogo.modalidade.nome }}</p>
+    <p><strong>Data/Hora:</strong> {{ jogo.data|date:"d/m/Y H:i" }}</p>
+</div>
+
+{% if palpite_existente %}
+    <div style="background: #fff3cd; padding: 15px; border-radius: 5px; margin-top: 20px; border: 1px solid #ffc107;">
+        <strong>⚠️ Você já tem um palpite para este jogo:</strong><br>
+        {{ palpite_existente.palpite_time1 }} x {{ palpite_existente.palpite_time2 }}<br>
+        <small>Você pode atualizar seu palpite abaixo.</small>
+    </div>
+{% endif %}
+
+<form method="post" style="margin-top: 30px;">
+    {% csrf_token %}
+    
+    <div style="display: flex; gap: 20px; align-items: center; flex-wrap: wrap;">
+        <div class="form-group" style="flex: 1; min-width: 150px;">
+            <label for="palpite_time1">{{ jogo.time1 }}</label>
+            <input type="number" 
+                   id="palpite_time1" 
+                   name="palpite_time1" 
+                   min="0" 
+                   value="{% if palpite_existente %}{{ palpite_existente.palpite_time1 }}{% else %}0{% endif %}" 
+                   required>
+        </div>
+        
+        <div style="font-size: 2em; font-weight: bold; color: #667eea;">x</div>
+        
+        <div class="form-group" style="flex: 1; min-width: 150px;">
+            <label for="palpite_time2">{{ jogo.time2 }}</label>
+            <input type="number" 
+                   id="palpite_time2" 
+                   name="palpite_time2" 
+                   min="0" 
+                   value="{% if palpite_existente %}{{ palpite_existente.palpite_time2 }}{% else %}0{% endif %}" 
+                   required>
+        </div>
+    </div>
+    
+    <div style="margin-top: 30px;">
+        <button type="submit" class="btn">
+            {% if palpite_existente %}Atualizar Palpite{% else %}Criar Palpite{% endif %}
+        </button>
+        <a href="{% url 'listar_jogos' %}" class="btn btn-secondary" style="margin-left: 10px;">
+            Cancelar
+        </a>
+    </div>
+</form>
+
+<div style="background: #e7f3ff; padding: 15px; border-radius: 5px; margin-top: 30px; border-left: 4px solid #2196F3;">
+    <strong>💡 Dica:</strong><br>
+    <ul style="margin-top: 10px; margin-left: 20px; line-height: 1.8;">
+        <li><strong>Placar Exato:</strong> Ganhe 50 pontos de XP</li>
+        <li><strong>Acertar Vencedor/Empate:</strong> Ganhe 10 pontos de XP</li>
+    </ul>
+</div>
+{% endblock %}

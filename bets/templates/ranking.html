@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% block title %}Ranking - PalpitaIFPI{% endblock %}
+
+{% block content %}
+<h2>🏆 Ranking de Jogadores</h2>
+
+{% if top %}
+    <table style="margin-top: 20px;">
+        <thead>
+            <tr>
+                <th style="width: 60px;">#</th>
+                <th>Usuário</th>
+                <th style="text-align: right;">XP</th>
+                <th style="text-align: center;">Nível</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for p in top %}
+                <tr>
+                    <td style="font-weight: bold; color: #667eea;">{{ forloop.counter }}</td>
+                    <td style="font-weight: 500;">{{ p.user.username }}</td>
+                    <td style="text-align: right; color: #28a745; font-weight: bold;">{{ p.xp }} XP</td>
+                    <td style="text-align: center;">
+                        <span style="background: #667eea; color: white; padding: 5px 12px; border-radius: 15px; font-weight: bold;">
+                            Nível {{ p.nivel }}
+                        </span>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <div style="background: #f8f9fa; padding: 30px; border-radius: 5px; text-align: center; margin-top: 20px;">
+        <p style="color: #666; font-style: italic; font-size: 1.1em;">
+            Ainda não há jogadores no ranking. Seja o primeiro a fazer um palpite!
+        </p>
+        <a href="{% url 'listar_jogos' %}" class="btn" style="margin-top: 20px;">Ver Jogos</a>
+    </div>
+{% endif %}
+
+<div style="margin-top: 30px;">
+    <a href="{% url 'home' %}" class="btn btn-secondary">Voltar para Home</a>
+</div>
+{% endblock %}

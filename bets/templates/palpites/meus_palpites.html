@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+
+{% block title %}Meus Palpites - PalpitaIFPI{% endblock %}
+
+{% block content %}
+<h2>🎯 Meus Palpites</h2>
+
+{% if perfil %}
+    <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 5px; margin-top: 20px;">
+        <h3>📊 Estatísticas</h3>
+        <div style="display: flex; gap: 30px; flex-wrap: wrap; margin-top: 15px;">
+            <div>
+                <strong>XP Total:</strong> {{ perfil.xp }}<br>
+                <strong>Nível:</strong> {{ perfil.nivel }}
+            </div>
+            <div>
+                <strong>Total de Palpites:</strong> {{ total_palpites }}<br>
+                <strong>Palpites Certos:</strong> {{ palpites_certos }}
+            </div>
+            <div>
+                <strong>Pontos Totais:</strong> {{ total_pontos }}
+            </div>
+        </div>
+    </div>
+{% endif %}
+
+{% if palpites %}
+    <table style="margin-top: 30px;">
+        <thead>
+            <tr>
+                <th>Jogo</th>
+                <th>Modalidade</th>
+                <th>Meu Palpite</th>
+                <th>Placar Final</th>
+                <th>Pontos</th>
+                <th>Data do Palpite</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for palpite in palpites %}
+                <tr>
+                    <td>
+                        <strong>{{ palpite.jogo.time1 }} x {{ palpite.jogo.time2 }}</strong>
+                    </td>
+                    <td>{{ palpite.jogo.modalidade.nome }}</td>
+                    <td>
+                        <strong>{{ palpite.palpite_time1 }} x {{ palpite.palpite_time2 }}</strong>
+                    </td>
+                    <td>
+                        {% if palpite.jogo.placar_time1 is not None and palpite.jogo.placar_time2 is not None %}
+                            {{ palpite.jogo.placar_time1 }} x {{ palpite.jogo.placar_time2 }}
+                        {% else %}
+                            <em>Aguardando resultado</em>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if palpite.pontos > 0 %}
+                            <strong style="color: #28a745;">+{{ palpite.pontos }} XP</strong>
+                        {% else %}
+                            <span style="color: #666;">0 XP</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ palpite.criado_em|date:"d/m/Y H:i" }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <div style="background: #f8f9fa; padding: 30px; border-radius: 5px; text-align: center; margin-top: 30px;">
+        <p style="font-size: 1.2em; color: #666; margin-bottom: 20px;">
+            Você ainda não fez nenhum palpite.
+        </p>
+        <a href="{% url 'listar_jogos' %}" class="btn">Ver Jogos Disponíveis</a>
+    </div>
+{% endif %}
+
+<div style="margin-top: 30px;">
+    <a href="{% url 'listar_jogos' %}" class="btn">Ver Todos os Jogos</a>
+    <a href="{% url 'ranking' %}" class="btn btn-secondary" style="margin-left: 10px;">Ver Ranking</a>
+</div>
+{% endblock %}

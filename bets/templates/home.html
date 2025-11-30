@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+
+{% block title %}Home - PalpitaIFPI{% endblock %}
+
+{% block content %}
+<h2>Bem-vindo ao PalpitaIFPI! 🏆</h2>
+<p style="margin-top: 20px; font-size: 1.1em; line-height: 1.8;">
+    Sistema de palpites para as modalidades esportivas do IFPI. 
+    Faça seus palpites, ganhe XP e dispute o ranking!
+</p>
+
+<div style="margin-top: 30px;">
+    <h3>📋 Modalidades Disponíveis</h3>
+    {% if modalidades %}
+        <ul style="margin-top: 10px; margin-left: 30px; line-height: 2;">
+            {% for modalidade in modalidades %}
+                <li>
+                    <a href="{% url 'jogos_por_modalidade' modalidade.id %}" style="color: #667eea; text-decoration: none;">
+                        {{ modalidade.nome }}
+                    </a>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p style="color: #666; font-style: italic; margin-top: 10px;">
+            Nenhuma modalidade cadastrada ainda.
+        </p>
+    {% endif %}
+</div>
+
+<div style="margin-top: 30px;">
+    <h3>⚽ Próximos Jogos</h3>
+    {% if jogos_proximos %}
+        <ul style="margin-top: 10px; margin-left: 30px; line-height: 2;">
+            {% for jogo in jogos_proximos %}
+                <li>
+                    <strong>{{ jogo.time1 }} x {{ jogo.time2 }}</strong> 
+                    ({{ jogo.modalidade.nome }}) - 
+                    {{ jogo.data|date:"d/m/Y H:i" }}
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'criar_palpite' jogo.id %}" class="btn" style="margin-left: 10px; padding: 5px 10px; font-size: 14px;">
+                            Palpitar
+                        </a>
+                    {% endif %}
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p style="color: #666; font-style: italic; margin-top: 10px;">
+            Nenhum jogo próximo cadastrado.
+        </p>
+    {% endif %}
+</div>
+
+<div style="margin-top: 30px; padding: 20px; background: #f8f9fa; border-radius: 5px;">
+    <h3>🎯 Como Funciona</h3>
+    <ul style="margin-top: 10px; margin-left: 30px; line-height: 2;">
+        <li><strong>Placar Exato:</strong> 50 pontos de XP</li>
+        <li><strong>Acertar Vencedor/Empate:</strong> 10 pontos de XP</li>
+        <li><strong>Subir de Nível:</strong> Acumule XP e avance no ranking!</li>
+    </ul>
+</div>
+
+<div style="margin-top: 30px; text-align: center;">
+    <a href="{% url 'listar_jogos' %}" class="btn">Ver Todos os Jogos</a>
+    <a href="{% url 'ranking' %}" class="btn btn-secondary" style="margin-left: 10px;">Ver Ranking</a>
+</div>
+{% endblock %}

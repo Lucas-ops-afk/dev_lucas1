@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+
+{% block title %}Minhas Apostas - PalpitaIFPI{% endblock %}
+
+{% block content %}
+<h2>💰 Minhas Apostas</h2>
+
+<div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 5px; margin-top: 20px;">
+    <h3>📊 Estatísticas</h3>
+    <div style="display: flex; gap: 30px; flex-wrap: wrap; margin-top: 15px;">
+        <div>
+            <strong>XP:</strong> {{ perfil.xp }} | <strong>Nível:</strong> {{ perfil.nivel }}
+        </div>
+        <div>
+            <strong>Total de Apostas:</strong> {{ total_apostas }}<br>
+            <strong>Ganhas:</strong> {{ apostas_ganhas }} | <strong>Perdidas:</strong> {{ apostas_perdidas }} | <strong>Pendentes:</strong> {{ apostas_pendentes }}
+        </div>
+        <div>
+            <strong>Total Apostado:</strong> R$ {{ total_apostado|floatformat:2 }}<br>
+            <strong>Total Ganho:</strong> <span style="color: #90EE90;">R$ {{ total_ganho|floatformat:2 }}</span>
+        </div>
+    </div>
+</div>
+
+{% if apostas %}
+    <table style="margin-top: 30px;">
+        <thead>
+            <tr>
+                <th>Jogo</th>
+                <th>Tipo</th>
+                <th>Aposta</th>
+                <th>Valor</th>
+                <th>Odd</th>
+                <th>Ganho Potencial</th>
+                <th>Status</th>
+                <th>Ganho Realizado</th>
+                <th>Data</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for aposta in apostas %}
+                <tr>
+                    <td>
+                        <strong>{{ aposta.jogo.time1 }} x {{ aposta.jogo.time2 }}</strong><br>
+                        <small>{{ aposta.jogo.modalidade.nome }}</small>
+                    </td>
+                    <td>{{ aposta.get_tipo_display }}</td>
+                    <td>
+                        {% if aposta.tipo == '1X2' %}
+                            {% if aposta.aposta_1x2 == '1' %}
+                                <strong>{{ aposta.jogo.time1 }}</strong>
+                            {% elif aposta.aposta_1x2 == 'X' %}
+                                <strong>Empate</strong>
+                            {% else %}
+                                <strong>{{ aposta.jogo.time2 }}</strong>
+                            {% endif %}
+                        {% else %}
+                            <strong>{{ aposta.palpite_time1 }} x {{ aposta.palpite_time2 }}</strong>
+                        {% endif %}
+                    </td>
+                    <td>R$ {{ aposta.valor_apostado|floatformat:2 }}</td>
+                    <td>{{ aposta.odd_aposta }}</td>
+                    <td>R$ {{ aposta.ganho_potencial|floatformat:2 }}</td>
+                    <td>
+                        {% if aposta.status == 'GANHOU' %}
+                            <span style="background: #28a745; color: white; padding: 5px 10px; border-radius: 15px; font-weight: bold;">
+                                ✅ Ganhou
+                            </span>
+                        {% elif aposta.status == 'PERDEU' %}
+                            <span style="background: #dc3545; color: white; padding: 5px 10px; border-radius: 15px; font-weight: bold;">
+                                ❌ Perdeu
+                            </span>
+                        {% else %}
+                            <span style="background: #ffc107; color: black; padding: 5px 10px; border-radius: 15px; font-weight: bold;">
+                                ⏳ Pendente
+                            </span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if aposta.status == 'GANHOU' %}
+                            <strong style="color: #28a745;">R$ {{ aposta.ganho_realizado|floatformat:2 }}</strong>
+                        {% else %}
+                            R$ 0,00
+                        {% endif %}
+                    </td>
+                    <td>{{ aposta.criado_em|date:"d/m/Y H:i" }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <div style="background: #f8f9fa; padding: 30px; border-radius: 5px; text-align: center; margin-top: 30px;">
+        <p style="font-size: 1.2em; color: #666; margin-bottom: 20px;">
+            Você ainda não fez nenhuma aposta.
+        </p>
+        <a href="{% url 'listar_jogos' %}" class="btn">Ver Jogos Disponíveis</a>
+    </div>
+{% endif %}
+
+<div style="margin-top: 30px;">
+    <a href="{% url 'listar_jogos' %}" class="btn">Ver Todos os Jogos</a>
+    <a href="{% url 'ranking' %}" class="btn btn-secondary" style="margin-left: 10px;">Ver Ranking</a>
+</div>
+{% endblock %}
